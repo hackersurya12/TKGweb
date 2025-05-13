@@ -1,9 +1,9 @@
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AK AI</title>
+  <title>TKS AI</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
   <style>
         * {
@@ -229,26 +229,25 @@
             color: #00ff00;
             margin: 20px 0;
         }
-    </style>
-  <script>
-    function redirectToLogout() {
-      window.location.href = 'logout.php';
-    }
+        
 
-    function refreshPrediction() {
-      console.log("Refreshing predictions...");
-    }
-  </script>
+        
+        
+        
+    </style>
 </head>
 <body>
   <div class="container">
     <div class="status-bar"></div>
 
     <div class="main-display">
-      <h1>AK AI CALCULATION 2.4</h1>
+      <h1>Ak Ultra Mod 2.5</h1>
       <div class="period-number" id="period-number">Loading...</div>
       <div class="result-display">
         <i class="fa fa-refresh fa-spin"></i> <span id="result">Loading...</span>
+      </div>
+      <div class="confidence-meter">
+        <div class="confidence-level" id="confidence-level"></div>
       </div>
     </div>
 
@@ -265,8 +264,165 @@
     </button>
   </div>
 
-  <script src="script.js"></script>
   <script>
+    // Enhanced prediction algorithm based on last 4 digits of period number
+    class PredictionEngine {
+      constructor() {
+        this.history = [];
+        this.patterns = {};
+        this.lastUpdate = 0;
+      }
+      
+      // Analyze last 4 digits of period number
+      analyzePeriodDigits(period) {
+        const periodStr = period.toString();
+        const last4 = periodStr.slice(-4).split('').map(Number);
+        
+        // Calculate various mathematical properties
+        const sum = last4.reduce((a, b) => a + b, 0);
+        const product = last4.reduce((a, b) => a * b, 1);
+        const digitSum = sum.toString().split('').map(Number).reduce((a, b) => a + b, 0);
+        const digitProduct = product.toString().split('').map(Number).reduce((a, b) => a * b, 1);
+        
+        // Calculate digit patterns
+        const ascending = last4.every((val, i, arr) => i === 0 || val >= arr[i - 1]);
+        const descending = last4.every((val, i, arr) => i === 0 || val <= arr[i - 1]);
+        
+        // Calculate digit differences
+        const diff1 = Math.abs(last4[0] - last4[1]);
+        const diff2 = Math.abs(last4[1] - last4[2]);
+        const diff3 = Math.abs(last4[2] - last4[3]);
+        
+        return {
+          digits: last4,
+          sum,
+          product,
+          digitSum,
+          digitProduct,
+          ascending,
+          descending,
+          differences: [diff1, diff2, diff3],
+          evenCount: last4.filter(d => d % 2 === 0).length,
+          oddCount: last4.filter(d => d % 2 !== 0).length
+        };
+      }
+      
+      // Generate prediction based on period number analysis
+      generatePrediction(period) {
+        const analysis = this.analyzePeriodDigits(period);
+        const history = this.history.slice(0, 10); // Last 10 results
+        
+        // Weighted factors for prediction
+        const factors = {
+          sumMod: analysis.sum % 10,
+          productMod: analysis.product % 10,
+          digitSumMod: analysis.digitSum % 10,
+          digitProductMod: analysis.digitProduct % 10,
+          lastDigit: analysis.digits[3],
+          secondLastDigit: analysis.digits[2],
+          evenOddRatio: analysis.evenCount / (analysis.oddCount || 1),
+          historyTrend: this.calculateHistoryTrend(history),
+          digitPattern: this.calculateDigitPattern(analysis.digits)
+        };
+        
+        // Calculate weighted prediction (adjusted weights for new method)
+        let predictionValue = Math.round(
+          (factors.sumMod * 0.15) +
+          (factors.productMod * 0.15) +
+          (factors.digitSumMod * 0.15) +
+          (factors.digitProductMod * 0.1) +
+          (factors.lastDigit * 0.2) +
+          (factors.secondLastDigit * 0.1) +
+          (factors.evenOddRatio * 5) +
+          (factors.historyTrend * 0.05) +
+          (factors.digitPattern * 0.1)
+        ) % 10;
+        
+        // Ensure prediction is between 0-9
+        predictionValue = Math.abs(predictionValue);
+        if (predictionValue > 9) predictionValue = 9;
+        
+        const size = predictionValue <= 4 ? 'Small' : 'Big';
+        const confidence = this.calculateConfidence(analysis, factors);
+        
+        return {
+          prediction: `${size}(${predictionValue})`,
+          confidence,
+          analysis
+        };
+      }
+      
+      calculateDigitPattern(digits) {
+        // Check for repeating digits
+        const uniqueDigits = [...new Set(digits)];
+        if (uniqueDigits.length === 1) return 0; // All digits same
+        
+        // Check for pairs
+        const digitCounts = {};
+        digits.forEach(d => digitCounts[d] = (digitCounts[d] || 0) + 1);
+        const pairs = Object.values(digitCounts).filter(count => count >= 2).length;
+        
+        if (pairs >= 2) return 5; // Multiple pairs
+        if (pairs === 1) return digits[3]; // Single pair
+        
+        // Check sequential patterns
+        const diff1 = digits[1] - digits[0];
+        const diff2 = digits[2] - digits[1];
+        const diff3 = digits[3] - digits[2];
+        
+        if (diff1 === diff2 && diff2 === diff3) {
+          return Math.abs(diff1); // Arithmetic sequence
+        }
+        
+        return digits[3]; // Default to last digit
+      }
+      
+      calculateHistoryTrend(history) {
+        if (history.length < 3) return 5; // Neutral value
+        
+        const lastThree = history.slice(0, 3);
+        const smallCount = lastThree.filter(r => r.number <= 4).length;
+        const bigCount = lastThree.filter(r => r.number > 4).length;
+        
+        if (smallCount > bigCount) return 3; // Slightly favor small
+        if (bigCount > smallCount) return 7; // Slightly favor big
+        return 5; // Neutral
+      }
+      
+      calculateConfidence(analysis, factors) {
+        // Calculate consistency between different methods
+        const methods = [
+          factors.sumMod,
+          factors.productMod,
+          factors.digitSumMod,
+          factors.lastDigit,
+          factors.digitPattern
+        ];
+        
+        // Count how many methods agree with the final prediction
+        const finalPred = factors.sumMod; // Using sumMod as base for comparison
+        const agreementCount = methods.filter(m => m === finalPred).length;
+        
+        // Confidence based on agreement (0-5 methods agreeing)
+        let confidence = 50 + (agreementCount * 10);
+        
+        // Adjust based on digit patterns
+        if (analysis.ascending || analysis.descending) confidence += 10;
+        if (analysis.evenCount === 4 || analysis.oddCount === 4) confidence += 5;
+        
+        // Keep within reasonable bounds
+        return Math.max(30, Math.min(95, confidence));
+      }
+      
+      updateHistory(newHistory) {
+        this.history = newHistory;
+        this.lastUpdate = Date.now();
+      }
+    }
+
+    // Initialize prediction engine
+    const predictionEngine = new PredictionEngine();
+
     async function fetchCurrentGameIssue() {
       const apiUrl = 'https://api.bdg88zf.com/api/webapi/GetGameIssue';
       const requestData = {
@@ -274,7 +430,7 @@
         "language": 0,
         "random": "40079dcba93a48769c6ee9d4d4fae23f",
         "signature": "D12108C4F57C549D82B23A91E0FA20AE",
-        "timestamp": 1727792520
+        "timestamp": Math.floor(Date.now() / 1000)
       };
 
       try {
@@ -309,46 +465,13 @@
       if (storedPredictionPeriod === issueNumber) {
         document.getElementById('result').textContent = storedPredictionResult;
       } else {
-        const prediction = generateEnhancedPrediction();
+        const { prediction, confidence } = predictionEngine.generatePrediction(issueNumber);
         localStorage.setItem('currentPeriod', issueNumber);
         localStorage.setItem('predictionResult', prediction);
         document.getElementById('result').textContent = prediction;
+        document.getElementById('confidence-level').style.width = `${confidence}%`;
       }
       document.getElementById('period-number').textContent = issueNumber;
-    }
-
-    function analyzeHistoryPattern(historyList) {
-      const trendCounts = { small: 0, big: 0, numbers: {} };
-
-      historyList.forEach(({ number }) => {
-        const size = number <= 4 ? 'Small' : 'Big';
-        trendCounts[size]++;
-
-        if (!trendCounts.numbers[number]) {
-          trendCounts.numbers[number] = 0;
-        }
-        trendCounts.numbers[number]++;
-      });
-
-      return trendCounts;
-    }
-
-    // Updated prediction function with mathematical logic
-    function generateEnhancedPrediction() {
-      const historyList = JSON.parse(localStorage.getItem('historyData')) || [];
-      if (historyList.length === 0) return "No Data";
-
-      // Sum of last 5 numbers (or fewer if less available)
-      const recent = historyList.slice(0, 5);
-      const total = recent.reduce((sum, item) => sum + item.number, 0);
-      const average = total / recent.length;
-
-      // Prediction based on average + some randomness
-      let predictedNumber = Math.round((average + Math.random() * 2 - 1)) % 10;
-      if (predictedNumber < 0) predictedNumber = 0;
-
-      const size = predictedNumber <= 4 ? 'Small' : 'Big';
-      return `${size}(${predictedNumber})`;
     }
 
     async function fetchPreviousResults() {
@@ -360,7 +483,7 @@
         "language": 0,
         "random": "c2505d9138da4e3780b2c2b34f2fb789",
         "signature": "7D637E060DA35C0C6E28DC6D23D71BED",
-        "timestamp": 1727792520
+        "timestamp": Math.floor(Date.now() / 1000)
       };
 
       try {
@@ -416,35 +539,58 @@
         historyData.push({ issueNumber, number, colour });
       });
 
+      // Update prediction engine with new history
+      predictionEngine.updateHistory(historyData);
       localStorage.setItem('historyData', JSON.stringify(historyData));
     }
 
     async function refreshPrediction() {
-      await fetchCurrentGameIssue();
-      await fetchPreviousResults();
+      try {
+        await fetchCurrentGameIssue();
+        await fetchPreviousResults();
+        
+        // Add slight delay to show refresh animation
+        const refreshIcon = document.querySelector('.refresh-button i');
+        refreshIcon.classList.add('fa-spin');
+        setTimeout(() => {
+          refreshIcon.classList.remove('fa-spin');
+        }, 1000);
+      } catch (error) {
+        console.error('Refresh error:', error);
+      }
     }
 
+    // Initialize on page load
     document.addEventListener("DOMContentLoaded", function () {
+      // Load any cached data first for quick display
+      const cachedPeriod = localStorage.getItem('currentPeriod');
+      const cachedResult = localStorage.getItem('predictionResult');
+      const cachedHistory = localStorage.getItem('historyData');
+      
+      if (cachedPeriod) {
+        document.getElementById('period-number').textContent = cachedPeriod;
+      }
+      
+      if (cachedResult) {
+        document.getElementById('result').textContent = cachedResult;
+      }
+      
+      if (cachedHistory) {
+        try {
+          const history = JSON.parse(cachedHistory);
+          predictionEngine.updateHistory(history);
+          updateHistoryTable(history.slice(0, 3)); // Only show 3 in UI
+        } catch (e) {
+          console.error('Error parsing cached history:', e);
+        }
+      }
+      
+      // Then fetch fresh data
       refreshPrediction();
+      
+      // Set up periodic refresh (every 30 seconds)
+      setInterval(refreshPrediction, 10000);
     });
   </script>
 </body>
-</html>                      
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                         
-                    
+</html>
