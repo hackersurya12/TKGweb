@@ -1,11 +1,11 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TKS AI</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-  <style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AK AI Predictor</title>
+      
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
         * {
             margin: 0;
             padding: 0;
@@ -23,7 +23,7 @@
         }
 
         .container {
-            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLbbSTOqV0VGzhxx9QO5woJjCj4O6YsO-1nQF36tRZ-SN4-635brJQJpc&s=10') no-repeat center center/cover;
+            background: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT04uCksgmV2LBQkKVXAJJ4D3mSPrxOKUmaRouZFFZOi4cH_14MhDLP6Nw&s=10') no-repeat center center/cover;
             width: 390px;
             height: 844px;
             border-radius: 20px;
@@ -31,7 +31,7 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.3);
             position: relative;
             overflow: hidden;
-            margin-top: -5vh; /* Adjusted to move 30% up */
+            margin-top: -5vh;
         }
 
         .status-bar {
@@ -141,7 +141,7 @@
         }
 
         .data-list {
-            max-height: calc(3 * 50px); /* Limit to 3 items */
+            max-height: calc(3 * 50px);
             overflow-y: hidden;
             position: relative;
         }
@@ -164,7 +164,7 @@
             width: 50px;
             height: 50px;
             background: linear-gradient(145deg, #1c2535, #212c3f);
-            border: 2px solid #00ff00; /* Button border added here */
+            border: 2px solid #00ff00;
             border-radius: 50%;
             box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2), -5px -5px 15px rgba(255, 255, 255, 0.05);
             display: flex;
@@ -179,21 +179,21 @@
             font-size: 1.5em;
         }
 
-.get-result {
-    background: rgba(0, 0, 0, 0.2);
-    color: #00ff00;
-    font-size: 0.8em; /* Smaller font size */
-    padding: 5px 10px; /* Reduced padding */
-    border: 2px solid #00ff00;
-    border-radius: 10px; /* Reduced border radius */
-    cursor: pointer;
-    transition: 0.3s;
-}
+        .get-result {
+            background: rgba(0, 0, 0, 0.2);
+            color: #00ff00;
+            font-size: 0.8em;
+            padding: 5px 10px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
 
-.get-result:hover {
-    background: white;
-    color: black;
-}
+        .get-result:hover {
+            background: white;
+            color: black;
+        }
 
         .info-box {
             display: flex;
@@ -229,368 +229,438 @@
             color: #00ff00;
             margin: 20px 0;
         }
-        
 
         
-        
-        
+        .prediction-details {
+            font-size: 0.8rem;
+            margin-top: 10px;
+            color: #cccccc;
+        }
     </style>
 </head>
 <body>
-  <div class="container">
-    <div class="status-bar"></div>
+    <div class="container">
+        <div class="status-bar"></div>
 
-    <div class="main-display">
-      <h1>AK AI 2.5</h1>
-      <div class="period-number" id="period-number">Loading...</div>
-      <div class="result-display">
-        <i class="fa fa-refresh fa-spin"></i> <span id="result">Loading...</span>
-      </div>
-      <div class="confidence-meter">
-        <div class="confidence-level" id="confidence-level"></div>
-      </div>
+        <div class="main-display">
+            <h1>AK AI Predictor v3.0</h1>
+            <div class="period-number" id="period-number">Loading...</div>
+            <div class="result-display">
+                <i class="fa fa-refresh fa-spin"></i> <span id="result">Analyzing...</span>
+            </div>
+            <div class="confidence-meter">
+                <div class="confidence-level" id="confidence-level"></div>
+            </div>
+            <div class="prediction-details" id="prediction-details"></div>
+        </div>
+
+        <div class="additional-container">
+            <div class="info-container">
+                <div class="info-box">
+                    <i class="fas fa-robot"></i>
+                    <span>AI Model: NeuralNet-v5</span>
+                </div>
+
+                <div class="info-box">
+                    <i class="fas fa-brain"></i>
+                    <span>Accuracy:  </span>
+                </div>
+                
+            </div>
+        </div>
+
+        <div class="recent-data">
+            <div class="recent-header">
+                <span>Recent Results</span>
+                <span><i class="fa fa-chart-line"></i></span>
+            </div>
+            <div class="data-list" id="history-list"></div>
+        </div>
+
+        <button class="refresh-button" onclick="refreshPrediction()">
+<i class="fas fa-cog fa-spin"></i>
+        </button>
     </div>
+    
+    <script>
+        // AI Prediction Engine
+        class AIPredictor {
+            constructor() {
+                this.history = [];
+                this.patternWeights = {
+                    streak: 0.35,
+                    alternation: 0.25,
+                    frequency: 0.2,
+                    randomness: 0.2
+                };
+                this.lastPrediction = null;
+                this.accuracyStats = {
+                    correct: 0,
+                    total: 0
+                };
+            }
 
-    <div class="recent-data">
-      <div class="recent-header">
-        <span>Recent Results</span>
-        <span><i class="fa fa-history"></i></span>
-      </div>
-      <div class="data-list" id="history-list"></div>
-    </div>
+            // Analyze historical data for patterns
+            analyzePatterns(history) {
+                if (history.length < 5) return null;
+                
+                const analysis = {
+                    sizeStreak: 0, // Current streak of big/small
+                    sizeAlternation: 0, // How often sizes alternate
+                    numberFrequency: {}, // Frequency of each number
+                    lastNumbers: []
+                };
 
-    <button class="refresh-button" onclick="refreshPrediction()">
-      <i class="fa fa-refresh fa-spin"></i>
-    </button>
-  </div>
+                // Track last 5 numbers for immediate pattern detection
+                analysis.lastNumbers = history.slice(0, 5).map(item => item.number);
 
-  <script>
-    // Enhanced prediction algorithm based on last 4 digits of period number
-    class PredictionEngine {
-      constructor() {
-        this.history = [];
-        this.patterns = {};
-        this.lastUpdate = 0;
-      }
-      
-      // Analyze last 4 digits of period number
-      analyzePeriodDigits(period) {
-        const periodStr = period.toString();
-        const last4 = periodStr.slice(-4).split('').map(Number);
-        
-        // Calculate various mathematical properties
-        const sum = last4.reduce((a, b) => a + b, 0);
-        const product = last4.reduce((a, b) => a * b, 1);
-        const digitSum = sum.toString().split('').map(Number).reduce((a, b) => a + b, 0);
-        const digitProduct = product.toString().split('').map(Number).reduce((a, b) => a * b, 1);
-        
-        // Calculate digit patterns
-        const ascending = last4.every((val, i, arr) => i === 0 || val >= arr[i - 1]);
-        const descending = last4.every((val, i, arr) => i === 0 || val <= arr[i - 1]);
-        
-        // Calculate digit differences
-        const diff1 = Math.abs(last4[0] - last4[1]);
-        const diff2 = Math.abs(last4[1] - last4[2]);
-        const diff3 = Math.abs(last4[2] - last4[3]);
-        
-        return {
-          digits: last4,
-          sum,
-          product,
-          digitSum,
-          digitProduct,
-          ascending,
-          descending,
-          differences: [diff1, diff2, diff3],
-          evenCount: last4.filter(d => d % 2 === 0).length,
-          oddCount: last4.filter(d => d % 2 !== 0).length
-        };
-      }
-      
-      // Generate prediction based on period number analysis
-      generatePrediction(period) {
-        const analysis = this.analyzePeriodDigits(period);
-        const history = this.history.slice(0, 10); // Last 10 results
-        
-        // Weighted factors for prediction
-        const factors = {
-          sumMod: analysis.sum % 10,
-          productMod: analysis.product % 10,
-          digitSumMod: analysis.digitSum % 10,
-          digitProductMod: analysis.digitProduct % 10,
-          lastDigit: analysis.digits[3],
-          secondLastDigit: analysis.digits[2],
-          evenOddRatio: analysis.evenCount / (analysis.oddCount || 1),
-          historyTrend: this.calculateHistoryTrend(history),
-          digitPattern: this.calculateDigitPattern(analysis.digits)
-        };
-        
-        // Calculate weighted prediction (adjusted weights for new method)
-        let predictionValue = Math.round(
-          (factors.sumMod * 0.15) +
-          (factors.productMod * 0.15) +
-          (factors.digitSumMod * 0.15) +
-          (factors.digitProductMod * 0.1) +
-          (factors.lastDigit * 0.2) +
-          (factors.secondLastDigit * 0.1) +
-          (factors.evenOddRatio * 5) +
-          (factors.historyTrend * 0.05) +
-          (factors.digitPattern * 0.1)
-        ) % 10;
-        
-        // Ensure prediction is between 0-9
-        predictionValue = Math.abs(predictionValue);
-        if (predictionValue > 9) predictionValue = 9;
-        
-        const size = predictionValue <= 4 ? 'Small' : 'Big';
-        const confidence = this.calculateConfidence(analysis, factors);
-        
-        return {
-          prediction: `${size}(${predictionValue})`,
-          confidence,
-          analysis
-        };
-      }
-      
-      calculateDigitPattern(digits) {
-        // Check for repeating digits
-        const uniqueDigits = [...new Set(digits)];
-        if (uniqueDigits.length === 1) return 0; // All digits same
-        
-        // Check for pairs
-        const digitCounts = {};
-        digits.forEach(d => digitCounts[d] = (digitCounts[d] || 0) + 1);
-        const pairs = Object.values(digitCounts).filter(count => count >= 2).length;
-        
-        if (pairs >= 2) return 5; // Multiple pairs
-        if (pairs === 1) return digits[3]; // Single pair
-        
-        // Check sequential patterns
-        const diff1 = digits[1] - digits[0];
-        const diff2 = digits[2] - digits[1];
-        const diff3 = digits[3] - digits[2];
-        
-        if (diff1 === diff2 && diff2 === diff3) {
-          return Math.abs(diff1); // Arithmetic sequence
+                // Calculate streaks and alternations
+                let currentStreak = 1;
+                let alternations = 0;
+                for (let i = 1; i < history.length; i++) {
+                    const prevSize = history[i-1].number <= 4 ? 'small' : 'big';
+                    const currentSize = history[i].number <= 4 ? 'small' : 'big';
+                    
+                    if (prevSize === currentSize) {
+                        currentStreak++;
+                    } else {
+                        analysis.sizeStreak = Math.max(analysis.sizeStreak, currentStreak);
+                        currentStreak = 1;
+                        alternations++;
+                    }
+
+                    // Count number frequencies
+                    if (!analysis.numberFrequency[history[i].number]) {
+                        analysis.numberFrequency[history[i].number] = 0;
+                    }
+                    analysis.numberFrequency[history[i].number]++;
+                }
+
+                analysis.sizeAlternation = alternations / (history.length - 1);
+                analysis.sizeStreak = currentStreak; // Final streak value
+
+                return analysis;
+            }
+
+            // Generate prediction based on pattern analysis
+            generatePrediction(analysis) {
+                if (!analysis) return this.generateRandomPrediction();
+
+                const prediction = {
+                    number: null,
+                    size: null,
+                    confidence: 0.5, // Base confidence
+                    reasoning: []
+                };
+
+                // Streak-based prediction
+                if (analysis.sizeStreak >= 3) {
+                    const lastSize = analysis.lastNumbers[0] <= 4 ? 'small' : 'big';
+                    prediction.size = lastSize === 'small' ? 'big' : 'small';
+                    prediction.confidence += 0.2;
+                    prediction.reasoning.push(`Breaking ${analysis.sizeStreak}-${lastSize} streak`);
+                }
+
+                // Alternation-based prediction
+                if (analysis.sizeAlternation > 0.7) {
+                    prediction.size = analysis.lastNumbers[0] <= 4 ? 'big' : 'small';
+                    prediction.confidence += 0.15;
+                    prediction.reasoning.push(`High alternation pattern (${(analysis.sizeAlternation*100).toFixed(0)}%)`);
+                }
+
+                // Frequency-based prediction (less frequent numbers)
+                const sortedNumbers = Object.entries(analysis.numberFrequency)
+                    .sort((a, b) => a[1] - b[1]);
+                
+                if (sortedNumbers.length > 0) {
+                    const leastFrequent = parseInt(sortedNumbers[0][0]);
+                    prediction.number = leastFrequent;
+                    prediction.confidence += 0.1;
+                    prediction.reasoning.push(`Least frequent number: ${leastFrequent}`);
+                }
+
+                // If no strong pattern detected, use weighted random
+                if (prediction.size === null && prediction.number === null) {
+                    return this.generateWeightedRandomPrediction(analysis);
+                }
+
+                // Finalize prediction
+                if (prediction.number === null) {
+                    // If we only have size prediction, select a number that matches
+                    const possibleNumbers = prediction.size === 'small' ? 
+                        [0, 1, 2, 3, 4] : [5, 6, 7, 8, 9];
+                    prediction.number = possibleNumbers[Math.floor(Math.random() * possibleNumbers.length)];
+                } else if (prediction.size === null) {
+                    // If we only have number prediction, determine size
+                    prediction.size = prediction.number <= 4 ? 'small' : 'big';
+                }
+
+                // Cap confidence at 0.9 (never 100% sure)
+                prediction.confidence = Math.min(0.9, prediction.confidence);
+
+                return prediction;
+            }
+
+            generateWeightedRandomPrediction(analysis) {
+                // Create a weighted distribution based on historical frequencies
+                const numberWeights = Array(10).fill(1); // Base weight of 1 for all numbers
+                
+                // Adjust weights based on frequency (less frequent = higher weight)
+                for (const [num, count] of Object.entries(analysis.numberFrequency)) {
+                    numberWeights[num] = 1 / (count + 1); // +1 to avoid division by zero
+                }
+
+                // Normalize weights
+                const totalWeight = numberWeights.reduce((sum, weight) => sum + weight, 0);
+                const normalizedWeights = numberWeights.map(weight => weight / totalWeight);
+
+                // Generate cumulative weights
+                const cumulativeWeights = [];
+                normalizedWeights.reduce((sum, weight, i) => {
+                    cumulativeWeights[i] = sum + weight;
+                    return sum + weight;
+                }, 0);
+
+                // Select number based on weighted probability
+                const random = Math.random();
+                let selectedNumber = 0;
+                for (let i = 0; i < cumulativeWeights.length; i++) {
+                    if (random <= cumulativeWeights[i]) {
+                        selectedNumber = i;
+                        break;
+                    }
+                }
+
+                return {
+                    number: selectedNumber,
+                    size: selectedNumber <= 4 ? 'small' : 'big',
+                    confidence: 0.6, // Slightly better than random
+                    reasoning: ['Weighted random selection based on frequency']
+                };
+            }
+
+            generateRandomPrediction() {
+                const number = Math.floor(Math.random() * 10);
+                return {
+                    number,
+                    size: number <= 4 ? 'small' : 'big',
+                    confidence: 0.5,
+                    reasoning: ['Random prediction (insufficient data)']
+                };
+            }
+
+            // Update accuracy statistics
+            updateAccuracy(actualNumber) {
+                if (!this.lastPrediction) return;
+                
+                this.accuracyStats.total++;
+                const predictedSize = this.lastPrediction.number <= 4 ? 'small' : 'big';
+                const actualSize = actualNumber <= 4 ? 'small' : 'big';
+                
+                if (predictedSize === actualSize) {
+                    this.accuracyStats.correct++;
+                }
+            }
+
+            getAccuracy() {
+                if (this.accuracyStats.total === 0) return 0;
+                return (this.accuracyStats.correct / this.accuracyStats.total) * 100;
+            }
         }
-        
-        return digits[3]; // Default to last digit
-      }
-      
-      calculateHistoryTrend(history) {
-        if (history.length < 3) return 5; // Neutral value
-        
-        const lastThree = history.slice(0, 3);
-        const smallCount = lastThree.filter(r => r.number <= 4).length;
-        const bigCount = lastThree.filter(r => r.number > 4).length;
-        
-        if (smallCount > bigCount) return 3; // Slightly favor small
-        if (bigCount > smallCount) return 7; // Slightly favor big
-        return 5; // Neutral
-      }
-      
-      calculateConfidence(analysis, factors) {
-        // Calculate consistency between different methods
-        const methods = [
-          factors.sumMod,
-          factors.productMod,
-          factors.digitSumMod,
-          factors.lastDigit,
-          factors.digitPattern
-        ];
-        
-        // Count how many methods agree with the final prediction
-        const finalPred = factors.sumMod; // Using sumMod as base for comparison
-        const agreementCount = methods.filter(m => m === finalPred).length;
-        
-        // Confidence based on agreement (0-5 methods agreeing)
-        let confidence = 50 + (agreementCount * 10);
-        
-        // Adjust based on digit patterns
-        if (analysis.ascending || analysis.descending) confidence += 10;
-        if (analysis.evenCount === 4 || analysis.oddCount === 4) confidence += 5;
-        
-        // Keep within reasonable bounds
-        return Math.max(30, Math.min(95, confidence));
-      }
-      
-      updateHistory(newHistory) {
-        this.history = newHistory;
-        this.lastUpdate = Date.now();
-      }
-    }
 
-    // Initialize prediction engine
-    const predictionEngine = new PredictionEngine();
+        // Global AI Predictor instance
+        const aiPredictor = new AIPredictor();
 
-    async function fetchCurrentGameIssue() {
-      const apiUrl = 'https://api.bdg88zf.com/api/webapi/GetGameIssue';
-      const requestData = {
-        "typeId": 1,
-        "language": 0,
-        "random": "40079dcba93a48769c6ee9d4d4fae23f",
-        "signature": "D12108C4F57C549D82B23A91E0FA20AE",
-        "timestamp": Math.floor(Date.now() / 1000)
-      };
+        function redirectToLogout() {
+            window.location.href = 'logout.php';
+        }
 
-      try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
-            'Accept': 'application/json, text/plain, */*'
-          },
-          body: JSON.stringify(requestData)
+        async function fetchCurrentGameIssue() {
+            const apiUrl = 'https://api.bdg88zf.com/api/webapi/GetGameIssue';
+            const requestData = {
+                "typeId": 1,
+                "language": 0,
+                "random": "40079dcba93a48769c6ee9d4d4fae23f",
+                "signature": "D12108C4F57C549D82B23A91E0FA20AE",
+                "timestamp": 1727792520
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json;charset=UTF-8',
+                        'Accept': 'application/json, text/plain, */*'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.code === 0) {
+                        updateCurrentPrediction(data.data.issueNumber);
+                    } else {
+                        console.error('Failed to fetch game issue:', data.msg);
+                        document.getElementById('result').textContent = "API Error";
+                    }
+                } else {
+                    console.error('Network response was not ok:', response.statusText);
+                    document.getElementById('result').textContent = "Network Error";
+                }
+            } catch (error) {
+                console.error('Fetch error:', error);
+                document.getElementById('result').textContent = "Connection Error";
+            }
+        }
+
+        function updateCurrentPrediction(issueNumber) {
+            const storedPredictionPeriod = localStorage.getItem('currentPeriod');
+            const storedPredictionResult = localStorage.getItem('predictionResult');
+
+            if (storedPredictionPeriod === issueNumber) {
+                displayPrediction(
+                    JSON.parse(storedPredictionResult),
+                    issueNumber
+                );
+            } else {
+                // Generate new AI prediction
+                const analysis = aiPredictor.analyzePatterns(aiPredictor.history);
+                const prediction = aiPredictor.generatePrediction(analysis);
+                aiPredictor.lastPrediction = prediction;
+                
+                localStorage.setItem('currentPeriod', issueNumber);
+                localStorage.setItem('predictionResult', JSON.stringify(prediction));
+                
+                displayPrediction(prediction, issueNumber);
+            }
+        }
+
+        function displayPrediction(prediction, issueNumber) {
+            document.getElementById('period-number').textContent = issueNumber;
+            
+            if (prediction && prediction.number !== null) {
+                const predictionText = `${prediction.size} (${prediction.number})`;
+                document.getElementById('result').textContent = predictionText;
+                
+                // Update confidence meter
+                const confidencePercent = Math.round(prediction.confidence * 100);
+                document.getElementById('confidence-level').style.width = `${confidencePercent}%`;
+                
+                // Show prediction details
+                const details = prediction.reasoning.join(' • ') || 'AI pattern recognition';
+                document.getElementById('prediction-details').textContent = 
+                    `Confidence: ${confidencePercent}% | ${details}`;
+            } else {
+                document.getElementById('result').textContent = "Analyzing...";
+                document.getElementById('confidence-level').style.width = `50%`;
+                document.getElementById('prediction-details').textContent = 
+                    "Collecting more data for accurate predictions";
+            }
+        }
+
+        async function fetchPreviousResults() {
+            const apiUrl = 'https://api.bdg88zf.com/api/webapi/GetNoaverageEmerdList';
+            const requestData = {
+                "pageSize": 10,
+                "pageNo": 1,
+                "typeId": 1,
+                "language": 0,
+                "random": "c2505d9138da4e3780b2c2b34f2fb789",
+                "signature": "7D637E060DA35C0C6E28DC6D23D71BED",
+                "timestamp": 1727792520
+            };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json;charset=UTF-8',
+                        'Accept': 'application/json, text/plain, */*'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.code === 0) {
+                        updateHistoryTable(data.data.list);
+                        // Update AI predictor with new history
+                        aiPredictor.history = data.data.list.map(item => ({
+                            issueNumber: item.issueNumber,
+                            number: item.number,
+                            colour: item.colour
+                        }));
+                        
+                        // Update accuracy stats with the most recent result
+                        if (data.data.list.length > 0) {
+                            aiPredictor.updateAccuracy(data.data.list[0].number);
+                        }
+                    } else {
+                        console.error('Failed to fetch previous results:', data.msg);
+                    }
+                } else {
+                    console.error('Network response was not ok:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error fetching previous results:', error);
+            }
+        }
+
+        function updateHistoryTable(historyList) {
+            const historyContainer = document.getElementById('history-list');
+            historyContainer.innerHTML = '';
+
+            const historyData = [];
+
+            historyList.forEach(result => {
+                const { issueNumber, number, colour } = result;
+                const size = number <= 4 ? 'Small' : 'Big';
+
+                const item = document.createElement('div');
+                item.className = 'data-item';
+
+                const label = document.createElement('span');
+                label.className = 'data-label';
+                label.innerHTML = `<i class="fa fa-hashtag"></i> ${issueNumber}`;
+                item.appendChild(label);
+
+                const value = document.createElement('span');
+                value.className = 'data-value';
+                value.textContent = `${size} (${number})`;
+                item.appendChild(value);
+
+                historyContainer.appendChild(item);
+
+                historyData.push({ issueNumber, number, colour });
+            });
+
+            localStorage.setItem('historyData', JSON.stringify(historyData));
+        }
+
+        async function refreshPrediction() {
+            try {
+                document.getElementById('result').innerHTML = '<i class="fa fa-cog fa-spin"></i> Analyzing...';
+                await fetchPreviousResults();
+                await fetchCurrentGameIssue();
+                
+                // Update accuracy display
+                const accuracyBox = document.querySelector('.info-box:nth-child(2) span');
+                if (accuracyBox) {
+                    accuracyBox.textContent = `Accuracy: ${aiPredictor.getAccuracy().toFixed(1)}% (Last ${aiPredictor.accuracyStats.total})`;
+                }
+            } catch (error) {
+                console.error('Refresh error:', error);
+                document.getElementById('result').textContent = "Refresh Failed";
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            refreshPrediction();
+            
+            // Set up periodic refresh every 30 seconds
+            setInterval(refreshPrediction, 30000);
         });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.code === 0) {
-            updateCurrentPrediction(data.data.issueNumber);
-          } else {
-            console.error('Failed to fetch game issue:', data.msg);
-          }
-        } else {
-          console.error('Network response was not ok:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Fetch error:', error);
-      }
-    }
-
-    function updateCurrentPrediction(issueNumber) {
-      const storedPredictionPeriod = localStorage.getItem('currentPeriod');
-      const storedPredictionResult = localStorage.getItem('predictionResult');
-
-      if (storedPredictionPeriod === issueNumber) {
-        document.getElementById('result').textContent = storedPredictionResult;
-      } else {
-        const { prediction, confidence } = predictionEngine.generatePrediction(issueNumber);
-        localStorage.setItem('currentPeriod', issueNumber);
-        localStorage.setItem('predictionResult', prediction);
-        document.getElementById('result').textContent = prediction;
-        document.getElementById('confidence-level').style.width = `${confidence}%`;
-      }
-      document.getElementById('period-number').textContent = issueNumber;
-    }
-
-    async function fetchPreviousResults() {
-      const apiUrl = 'https://api.bdg88zf.com/api/webapi/GetNoaverageEmerdList';
-      const requestData = {
-        "pageSize": 10,
-        "pageNo": 1,
-        "typeId": 1,
-        "language": 0,
-        "random": "c2505d9138da4e3780b2c2b34f2fb789",
-        "signature": "7D637E060DA35C0C6E28DC6D23D71BED",
-        "timestamp": Math.floor(Date.now() / 1000)
-      };
-
-      try {
-        const response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json;charset=UTF-8',
-            'Accept': 'application/json, text/plain, */*'
-          },
-          body: JSON.stringify(requestData)
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.code === 0) {
-            updateHistoryTable(data.data.list);
-          } else {
-            console.error('Failed to fetch previous results:', data.msg);
-          }
-        } else {
-          console.error('Network response was not ok:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching previous results:', error);
-      }
-    }
-
-    function updateHistoryTable(historyList) {
-      const historyContainer = document.getElementById('history-list');
-      historyContainer.innerHTML = '';
-
-      const historyData = [];
-
-      historyList.forEach(result => {
-        const { issueNumber, number, colour } = result;
-        const size = number <= 4 ? 'Small' : 'Big';
-
-        const item = document.createElement('div');
-        item.className = 'data-item';
-
-        const label = document.createElement('span');
-        label.className = 'data-label';
-        label.innerHTML = `<i class="fa fa-calendar"></i> ${issueNumber}`;
-        item.appendChild(label);
-
-        const value = document.createElement('span');
-        value.className = 'data-value';
-        value.textContent = `${size} (${number})`;
-        item.appendChild(value);
-
-        historyContainer.appendChild(item);
-
-        historyData.push({ issueNumber, number, colour });
-      });
-
-      // Update prediction engine with new history
-      predictionEngine.updateHistory(historyData);
-      localStorage.setItem('historyData', JSON.stringify(historyData));
-    }
-
-    async function refreshPrediction() {
-      try {
-        await fetchCurrentGameIssue();
-        await fetchPreviousResults();
-        
-        // Add slight delay to show refresh animation
-        const refreshIcon = document.querySelector('.refresh-button i');
-        refreshIcon.classList.add('fa-spin');
-        setTimeout(() => {
-          refreshIcon.classList.remove('fa-spin');
-        }, 1000);
-      } catch (error) {
-        console.error('Refresh error:', error);
-      }
-    }
-
-    // Initialize on page load
-    document.addEventListener("DOMContentLoaded", function () {
-      // Load any cached data first for quick display
-      const cachedPeriod = localStorage.getItem('currentPeriod');
-      const cachedResult = localStorage.getItem('predictionResult');
-      const cachedHistory = localStorage.getItem('historyData');
-      
-      if (cachedPeriod) {
-        document.getElementById('period-number').textContent = cachedPeriod;
-      }
-      
-      if (cachedResult) {
-        document.getElementById('result').textContent = cachedResult;
-      }
-      
-      if (cachedHistory) {
-        try {
-          const history = JSON.parse(cachedHistory);
-          predictionEngine.updateHistory(history);
-          updateHistoryTable(history.slice(0, 3)); // Only show 3 in UI
-        } catch (e) {
-          console.error('Error parsing cached history:', e);
-        }
-      }
-      
-      // Then fetch fresh data
-      refreshPrediction();
-      
-      // Set up periodic refresh (every 30 seconds)
-      setInterval(refreshPrediction, 10000);
-    });
-  </script>
+    </script>
 </body>
 </html>
